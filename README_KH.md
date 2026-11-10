@@ -77,7 +77,22 @@ python -m http.server 8099
 **ដំណោះស្រាយសម្រាប់ជីវជាតិ:** ថតរូបស្លឹក → វិភាគដោយ AI (រូប + រោគសញ្ញា)
 ឬកាន់តែជាក់លាក់: យកដីទៅពិនិត្យ (soil test) នៅមន្ទីរពិសោធន៍កសិកម្ម។
 
-## ៦. ធ្វើជា APK ពិត (ពេលត្រូវការ)
+## ៦. ដាក់លើ GitHub Pages (ដំណើរការហើយ)
+
+App ឡើងផ្ទាល់ហើយ — ទូរស័ព្ទបើកបានគ្រប់ទីកន្លែងដែលមាន internet ដោយមិនត្រូវការ PC ឬ LAN:
+
+- URL: **https://muongmaraing.github.io/smart-plant-monitor/**
+- Repo: https://github.com/muongmaraing/smart-plant-monitor (public)
+- កែកូដនៅ PC → `git add -A && git commit -m "..."` → `git push` → ទូរស័ព្ទឃើញកំណែថ្មីក្នុង ~១ នាទី (sw.js ជា network-first ហើយ)
+
+⚠️ ដែនកំណត់សំខាន់: ទំព័រ `https://` **មិនអាច**ហៅ `http://<ESP32-IP>/data` បានទេ (mixed content — browser បិទ)។
+ដូច្នេះ URL ខាងលើប្រើបានពេញលេញសម្រាប់ **Demo mode** និងសម្រាប់ដំឡើងជា App;
+ឯទិន្នន័យ sensor ពិត ត្រូវជ្រើស ១ ក្នុង ៣៖
+1. ប្រើ LAN `http://` (ផ្នែក ២) — ទូរស័ព្ទ និង ESP32 នៅ WiFi តែមួយ
+2. បើកឯកសារ `index.html` ក្នុងទូរស័ព្ទផ្ទាល់ (offline, file://) — ហៅ http បាន
+3. ESP32 បញ្ជូនទៅ cloud (ThingSpeak/Blynk/MQTT) → app អានពី cloud (https ទាំងសងខាង) — ប្រើបានគ្រប់ទីកន្លែង
+
+## ៧. ធ្វើជា APK ពិត (ពេលត្រូវការ)
 
 PWA ដំឡើងបានលើទូរស័ព្ទដោយមិនត្រូវការ APK។ បើចង់បាន `.apk` ពិត:
 1. ដាក់ folder នេះលើ **GitHub Pages** (https) → ទទួល URL
