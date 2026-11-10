@@ -1,0 +1,16 @@
+{
+  "name": "ម៉ូនីទ័រដើមឈើ — Smart Plant Monitor",
+  "short_name": "ដើមឈើ",
+  "description": "វិភាគសំណើមដី សីតុណ្ហភាព ពន្លឺ និងជាតិជី (EC) + វិភាគរោគសញ្ញាស្លឹក",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b120f",
+  "theme_color": "#0e1512",
+  "lang": "km",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

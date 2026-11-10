@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e1512">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<title>ម៉ូនីទ័រដើមឈើ | Smart Plant Monitor</title>
+<style>
+:root{
+  --bg:#0b120f; --card:#141f1a; --card2:#1a2620; --line:#24352c;
+  --tx:#e8f4ec; --tx2:#8fa89a; --good:#3ddc84; --warn:#f5c518; --bad:#ff5c5c;
+  --accent:#3ddc84;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--tx);
+  font-family:"Khmer OS Battambang","Khmer OS","Noto Sans Khmer",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:15px; line-height:1.55; padding:14px 14px 34px; max-width:820px; margin:0 auto;
+}
+h1{font-size:17px;margin:0;font-family:"Khmer OS Muol Light","Khmer OS Battambang",sans-serif}
+h2{font-size:14px;margin:0 0 10px;color:var(--tx2);font-weight:400;letter-spacing:.3px}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#3ddc84,#1d7a4d);
+  display:flex;align-items:center;justify-content:center;font-size:19px}
+.chip{margin-left:auto;font-size:11px;padding:5px 10px;border-radius:99px;background:#16301f;
+  color:var(--good);border:1px solid #22503a;white-space:nowrap}
+.chip.off{background:#2a2320;color:var(--warn);border-color:#4a3d1c}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.card .lab{font-size:11.5px;color:var(--tx2);margin-bottom:6px}
+.card .val{font-size:24px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.card .st{font-size:11px;margin-top:4px;display:inline-block;padding:2px 8px;border-radius:99px}
+.g{color:var(--good);background:#12301f}
+.w{color:var(--warn);background:#302a12}
+.b{color:var(--bad);background:#301616}
+.bar{height:5px;border-radius:5px;background:#1f2d26;margin-top:9px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:5px;background:var(--good);transition:width .5s,background .5s}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:12px}
+.gauge{display:flex;align-items:center;gap:16px}
+.gauge svg{flex:0 0 auto}
+.gtxt .big{font-size:30px;font-weight:700;line-height:1}
+.gtxt .sub{font-size:12px;color:var(--tx2);margin-top:4px}
+.alert{border-radius:14px;padding:12px 13px;margin-bottom:12px;border:1px solid #4a3d1c;
+  background:#241f0f;display:flex;gap:10px;align-items:flex-start}
+.alert.ok{background:#11261b;border-color:#22503a}
+.alert.bad{background:#26110f;border-color:#5a2320}
+.alert .ic{font-size:18px;line-height:1.2}
+.alert .ttl{font-weight:700;font-size:13.5px;margin-bottom:3px}
+.alert ul{margin:6px 0 0;padding-left:18px}
+.alert li{font-size:12.5px;margin-bottom:4px;color:#dfeee5}
+canvas{width:100%;height:130px;display:block}
+.rowline{display:flex;gap:8px}
+.rowline>*{flex:1}
+button,input,select,textarea{font-family:inherit;font-size:14px}
+button{cursor:pointer;border:none;border-radius:11px;padding:11px 13px;background:var(--card2);
+  color:var(--tx);border:1px solid var(--line)}
+button.primary{background:linear-gradient(135deg,#3ddc84,#1f9c5c);color:#06210f;font-weight:700;border:none}
+button.sm{padding:8px 11px;font-size:12.5px}
+input,select,textarea{width:100%;padding:9px 11px;border-radius:10px;background:#0f1a15;
+  border:1px solid var(--line);color:var(--tx);outline:none}
+label.ck{display:flex;gap:9px;align-items:flex-start;font-size:13px;margin-bottom:9px;color:#d6e8dd}
+label.ck input{width:auto;margin-top:3px;accent-color:#3ddc84}
+.hide{display:none!important}
+.foot{text-align:center;font-size:11px;color:#5f7a6d;margin-top:16px}
+.pill{display:inline-block;font-size:11px;padding:3px 9px;border-radius:99px;background:#1c2a23;color:var(--tx2);margin-right:5px}
+#preview{width:100%;border-radius:12px;margin-bottom:10px;border:1px solid var(--line)}
+.diag{font-size:13px;background:#0f1a15;border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px}
+.diag .h{font-weight:700;color:var(--good);margin-bottom:6px}
+.sep{height:1px;background:var(--line);margin:12px 0}
+.tiny{font-size:11px;color:#5f7a6d}
+h2.sec{font-size:12px;color:var(--tx2);text-transform:none;margin:2px 0 9px}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="logo">🌱</div>
+  <div>
+    <h1>ម៉ូនីទ័រដើមឈើ</h1>
+    <div class="tiny">Smart Plant Monitor · ដី · ទឹក · ជី</div>
+  </div>
+  <div class="chip" id="chip">● ដំណើរការ (Demo)</div>
+</div>
+
+<!-- GAUGE -->
+<div class="panel">
+  <div class="gauge">
+    <svg width="104" height="104" viewBox="0 0 104 104">
+      <circle cx="52" cy="52" r="44" fill="none" stroke="#1f2d26" stroke-width="11"/>
+      <circle id="ring" cx="52" cy="52" r="44" fill="none" stroke="#3ddc84" stroke-width="11"
+        stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="276.5"
+        transform="rotate(-90 52 52)" style="transition:stroke-dashoffset .6s,stroke .6s"/>
+    </svg>
+    <div class="gtxt">
+      <div class="big"><span id="moistBig">--</span><span style="font-size:15px">%</span></div>
+      <div class="sub">សំណើមដី (Soil moisture)</div>
+      <div class="sub" id="moistWord">កំពុងអាន…</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4 CARDS -->
+<div class="grid">
+  <div class="card">
+    <div class="lab">សីតុណ្ហភាព</div>
+    <div class="val"><span id="tempV">--</span><span style="font-size:13px">°C</span></div>
+    <div class="st g" id="tempS">--</div>
+    <div class="bar"><i id="tempBar" style="width:0%"></i></div>
+  </div>
+  <div class="card">
+    <div class="lab">សំណើមខ្យល់</div>
+    <div class="val"><span id="humV">--</span><span style="font-size:13px">%</span></div>
+    <div class="st g" id="humS">--</div>
+    <div class="bar"><i id="humBar" style="width:0%"></i></div>
+  </div>
+  <div class="card">
+    <div class="lab">ពន្លឺ (ពន្លឺព្រះអាទិត្យ)</div>
+    <div class="val"><span id="luxV">--</span><span style="font-size:13px"> klx</span></div>
+    <div class="st g" id="luxS">--</div>
+    <div class="bar"><i id="luxBar" style="width:0%"></i></div>
+  </div>
+  <div class="card">
+    <div class="lab">ជាតិជី / អំបិល (EC)</div>
+    <div class="val"><span id="ecV">--</span><span style="font-size:13px"> mS/cm</span></div>
+    <div class="st g" id="ecS">--</div>
+    <div class="bar"><i id="ecBar" style="width:0%"></i></div>
+  </div>
+</div>
+
+<!-- ALERT / ADVICE -->
+<div class="alert" id="alert">
+  <div class="ic">⚠️</div>
+  <div style="flex:1">
+    <div class="ttl" id="alertTtl">កំពុងវិភាគ…</div>
+    <ul id="alertList"></ul>
+  </div>
+</div>
+
+<!-- CHART -->
+<div class="panel">
+  <h2 class="sec">សំណើមដី ២៤ ម៉ោងចុងក្រោយ</h2>
+  <canvas id="chart"></canvas>
+  <div class="rowline" style="margin-top:10px">
+    <div class="tiny">ទាប 0%</div>
+    <div class="tiny" style="text-align:right">ខ្ពស់ 100%</div>
+  </div>
+</div>
+
+<!-- LEAF DIAGNOSIS -->
+<div class="panel">
+  <h2 class="sec">វិភាគស្លឹក — ខ្វះជីវជាតិអ្វី?</h2>
+  <div class="rowline" style="margin-bottom:10px">
+    <button class="sm" onclick="document.getElementById('shot').click()">📷 ថតរូបស្លឹក</button>
+    <button class="sm" onclick="toggleQ()">🩺 ឆែកតាមរោគសញ្ញា</button>
+  </div>
+  <input type="file" id="shot" accept="image/*" capture="environment" class="hide" onchange="showShot(this)">
+  <img id="preview" class="hide" alt="leaf">
+
+  <div id="qbox" class="hide">
+    <div class="tiny" style="margin-bottom:8px">ធីកអ្វីដែលអ្នកឃើញលើស្លឹក (អាចធីកច្រើន)</div>
+    <label class="ck"><input type="checkbox" value="old_yellow">ស្លឹកចាស់ (ខាងក្រោម) លឿងស្លេក ទាំងស្លឹក</label>
+    <label class="ck"><input type="checkbox" value="old_purple">ស្លឹកចាស់មានពណ៌ស្វាយ/ក្រហម ឬដើមស្វាយ</label>
+    <label class="ck"><input type="checkbox" value="edge_burn">គែមស្លឹកលឿង ហើយស្ងួត ឆេះពីចុង</label>
+    <label class="ck"><input type="checkbox" value="new_yellow">ស្លឹកថ្មី (ខាងលើ) លឿង តែសរសៃនៅបៃតង</label>
+    <label class="ck"><input type="checkbox" value="interveinal">ស្លឹកលឿងរវាងសរសៃ សរសៃនៅបៃតង (ស្លឹកចាស់)</label>
+    <label class="ck"><input type="checkbox" value="wilt_dry">ស្លឹករួញ ស្វិត ដីស្ងួត</label>
+    <label class="ck"><input type="checkbox" value="wilt_wet">ស្លឹកលឿង ស្លោក ដីសើមខ្លាំង/មានក្លិន</label>
+    <label class="ck"><input type="checkbox" value="spots">ចុងស្លឹក/គែមខ្មៅ មានចំណុចខ្មៅ</label>
+    <div class="rowline" style="margin-top:6px">
+      <button class="primary" onclick="diagnose()">វិភាគឥឡូវ</button>
+    </div>
+  </div>
+  <div id="diagOut" class="diag hide"></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="panel">
+  <h2 class="sec">ការតភ្ជាប់ (ESP32 / Arduino)</h2>
+  <div class="rowline" style="margin-bottom:9px">
+    <input id="ip" placeholder="192.168.100.50" value="">
+    <button class="sm" style="flex:0 0 auto" onclick="saveIp()">ភ្ជាប់</button>
+  </div>
+  <div class="tiny" id="ipMsg">មិនទាន់ភ្ជាប់ — កំពុងបង្ហាញទិន្នន័យ Demo</div>
+  <div class="sep"></div>
+  <label class="ck"><input type="checkbox" id="demoChk" checked onchange="setDemo(this.checked)">
+    ប្រើទិន្នន័យ Demo (គ្មានឧបករណ៍ពិត)</label>
+  <div class="tiny">ESP32 ត្រូវបើក WiFi ហើយបញ្ចេញ JSON នៅ <code>/data</code> —
+    ឧ. <code>{"moisture":48,"temp":28.4,"hum":65,"lux":42000,"ec":1.2}</code></div>
+</div>
+
+<div class="foot">Smart Plant Monitor v1.0 · ដំណើរការលើទូរស័ព្ទ និងកុំព្យូទ័រ · មិនត្រូវការអ៊ីនធឺណិត</div>
+
+<script>
+/* ---------- state ---------- */
+const S = {
+  moisture: 48, temp: 28.4, hum: 65, lux: 42000, ec: 1.2,
+  demo: true, ip: localStorage.getItem('spm_ip') || '',
+  hist: []
+};
+const $ = id => document.getElementById(id);
+
+/* ---------- demo simulation: 24h moisture curve ---------- */
+function seedHistory(){
+  const now = new Date(); const h = now.getHours() + now.getMinutes()/60;
+  S.hist = [];
+  for (let i = 23; i >= 0; i--){
+    const t = h - i, hour = (t + 24) % 24;
+    // watered at 7h and 17h -> rise then decay
+    let base = 52 - 14 * Math.sin(((hour - 7) / 12) * Math.PI);
+    if (hour < 7) base -= 6;
+    base += Math.sin(i * 1.7) * 1.6;
+    S.hist.push({hour, v: Math.max(8, Math.min(96, base))});
+  }
+  S.moisture = Math.round(S.hist[S.hist.length-1].v);
+  S.temp = +(28 + Math.sin((h-14)/24*Math.PI*2)*3).toFixed(1);
+  S.hum = Math.round(65 + Math.sin((h-2)/24*Math.PI*2)*10);
+  S.lux = Math.round(hourLux(h));
+}
+function hourLux(h){
+  if (h < 6 || h > 18) return 300;
+  return Math.round(Math.max(300, 95000 * Math.sin(((h - 6) / 12) * Math.PI)));
+}
+
+/* ---------- rules engine ---------- */
+function analyse(){
+  const {moisture:m, temp:t, hum:hu, lux:l, ec:e} = S;
+  const tips = []; let level = 'ok', title = 'ដើមឈើមានសុខភាពល្អ';
+
+  if (m < 25){ level='bad'; title='ដីស្ងួតខ្លាំង — ត្រូវស្រោចទឹកឥឡូវ';
+    tips.push('ស្រោចទឹកឲ្យជោគដល់ឫស (ជម្រៅ ១៥–២០ សម សម្រាប់ដើមឈើធំ)។');
+  } else if (m < 38){ level='warn'; title='ដីចាប់ផ្តើមស្ងួត — គួរស្រោចក្នុង ១–២ ថ្ងៃ';
+    tips.push('ស្រោចទឹកឲ្យបាន ៦០–៧០% នៃសំណើមពេញលេញ។');
+  } else if (m > 80){ level='bad'; title='ដីសើមខ្លាំងពេក — ឫសអាចរលួយ';
+    tips.push('ឈប់ស្រោច ២–៣ ថ្ងៃ — បើដីលិចទឹក ឫសអាចរលួយ (root rot); ឆែករន្ធបង្ហូរទឹក និងមានក្លិនជូរ។');
+  }
+  if (e < 0.4 && m >= 30){ if(level==='ok') level='warn';
+    if(title==='ដើមឈើមានសុខភាពល្អ') title='ជាតិជីក្នុងដីទាប — ត្រូវបំប៉ន';
+    tips.push('EC ទាប = ជាតិជីសរុបតិច → ដាក់ជីសមាសធាតុ (NPK 16-16-8 ឬ 13-13-13) ប្រហែល ៥០–១០០ ក្រាម/ដើម។');
+  }
+  if (e > 3.0){ if(level!=='bad') level='warn';
+    tips.push('EC ខ្ពស់ = អំបិល/ជីច្រើនពេក → ស្រោចទឹកលាង (leaching) មុនដាក់ជីបន្ថែម។'); }
+  if (t > 36){ if(level!=='bad') level='warn';
+    tips.push('កម្តៅខ្ពស់ — ស្រោចទឹកពេលព្រឹក/ល្ងាច, ដាក់ស្រមោល ឬការពារដីដោយចំបើង (mulch)។'); }
+  if (l < 3000 && !(new Date().getHours()<6 || new Date().getHours()>18)){
+    if(level==='ok') level='warn'; tips.push('ពន្លឺតិច — ដើមឈើត្រូវការពន្លឺព្រះអាទិត្យ ៦ ម៉ោង/ថ្ងៃ ឬផ្លាស់ទីកន្លែង។'); }
+  if (hu < 40 && t > 32) tips.push('ខ្យល់ស្ងួត កម្តៅខ្ពស់ → បាញ់ទឹកស្លឹកពេលល្ងាច ដើម្បីបន្ថយការហួត។');
+  if (!tips.length) tips.push('រក្សាការស្រោចទឹកដូចបច្ចុប្បន្ន · បន្ថែមជីរាល់ ៤–៦ សប្តាហ៍។');
+  return {level, title, tips};
+}
+
+/* ---------- render ---------- */
+function setBadge(el, txt, kind){ el.textContent = txt; el.className = 'st ' + kind; }
+function colour(v, a, b){ return v < a ? 'var(--bad)' : v < b ? 'var(--warn)' : 'var(--good)'; }
+
+function render(){
+  const a = analyse();
+  // gauge
+  $('moistBig').textContent = S.moisture;
+  const C = 2 * Math.PI * 44;
+  $('ring').setAttribute('stroke-dashoffset', C * (1 - S.moisture/100));
+  $('ring').setAttribute('stroke', S.moisture < 25 ? '#ff5c5c' : S.moisture < 38 ? '#f5c518' : S.moisture > 80 ? '#ff8c42' : '#3ddc84');
+  $('moistWord').textContent = S.moisture < 25 ? 'ស្ងួត — ត្រូវស្រោចទឹក' : S.moisture < 38 ? 'ចាប់ផ្តើមស្ងួត' : S.moisture > 80 ? 'សើមពេក' : 'ល្អ (មិនខ្វះទឹក)';
+
+  // cards
+  $('tempV').textContent = S.temp.toFixed(1);
+  setBadge($('tempS'), S.temp > 36 ? 'ក្តៅពេក' : S.temp < 15 ? 'ត្រជាក់ពេក' : 'ល្អ', S.temp > 36 || S.temp < 15 ? 'w' : 'g');
+  $('tempBar').style.width = Math.min(100, S.temp/50*100) + '%';
+  $('tempBar').style.background = S.temp > 36 ? 'var(--warn)' : 'var(--good)';
+
+  $('humV').textContent = S.hum;
+  setBadge($('humS'), S.hum < 40 ? 'ស្ងួត' : S.hum > 85 ? 'សើមខ្លាំង' : 'ល្អ', S.hum<40||S.hum>85 ? 'w' : 'g');
+  $('humBar').style.width = S.hum + '%';
+  $('humBar').style.background = S.hum<40?'var(--warn)':'var(--good)';
+
+  const klx = S.lux/1000;
+  $('luxV').textContent = klx < 10 ? klx.toFixed(1) : Math.round(klx);
+  const night = (new Date().getHours()<6 || new Date().getHours()>18);
+  setBadge($('luxS'), night ? 'ពេលយប់' : klx < 3 ? 'តិចពេក' : klx > 90 ? 'ខ្លាំងពេក' : 'គ្រប់គ្រាន់',
+           night ? 'w' : klx < 3 ? 'w' : 'g');
+  $('luxBar').style.width = Math.min(100, klx/100*100) + '%';
+  $('luxBar').style.background = (klx<3 && !night) ? 'var(--warn)' : 'var(--good)';
+
+  $('ecV').textContent = S.ec.toFixed(2);
+  setBadge($('ecS'), S.ec < 0.4 ? 'ជីតិច (ខ្វះជី)' : S.ec > 3 ? 'អំបិលច្រើន' : 'ល្មម', S.ec<0.4||S.ec>3 ? 'w' : 'g');
+  $('ecBar').style.width = Math.min(100, S.ec/5*100) + '%';
+  $('ecBar').style.background = S.ec<0.4?'var(--warn)':S.ec>3?'var(--bad)':'var(--good)';
+
+  // alert
+  const box = $('alert');
+  box.className = 'alert ' + (a.level === 'ok' ? 'ok' : a.level === 'bad' ? 'bad' : '');
+  box.querySelector('.ic').textContent = a.level === 'ok' ? '✅' : a.level === 'bad' ? '🚨' : '⚠️';
+  $('alertTtl').textContent = a.title;
+  $('alertList').innerHTML = a.tips.map(t => '<li>' + t + '</li>').join('');
+
+  drawChart();
+}
+
+/* ---------- chart ---------- */
+function drawChart(){
+  const c = $('chart'), dpr = window.devicePixelRatio || 1;
+  const w = c.clientWidth || 300, h = 130;
+  c.width = w*dpr; c.height = h*dpr;
+  const x = c.getContext('2d'); x.scale(dpr, dpr); x.clearRect(0,0,w,h);
+  const pad = {l:26,r:8,t:8,b:18};
+  const gw = w - pad.l - pad.r, gh = h - pad.t - pad.b;
+  // grid
+  x.strokeStyle = '#1f2d26'; x.lineWidth = 1; x.font = '10px sans-serif'; x.fillStyle = '#5f7a6d';
+  [0,25,50,75,100].forEach(v=>{
+    const y = pad.t + gh - (v/100)*gh;
+    x.beginPath(); x.moveTo(pad.l, y); x.lineTo(w-pad.r, y); x.stroke();
+    x.fillText(v, 4, y+3);
+  });
+  // band: comfortable moisture 35-65
+  x.fillStyle = 'rgba(61,220,132,.07)';
+  const y1 = pad.t + gh - (65/100)*gh, y2 = pad.t + gh - (35/100)*gh;
+  x.fillRect(pad.l, y1, gw, y2-y1);
+
+  const d = S.hist.length ? S.hist : [];
+  if (!d.length) return;
+  const px = i => pad.l + (i/(d.length-1))*gw;
+  const py = v => pad.t + gh - (v/100)*gh;
+  // fill
+  const g = x.createLinearGradient(0, pad.t, 0, h-pad.b);
+  g.addColorStop(0,'rgba(61,220,132,.30)'); g.addColorStop(1,'rgba(61,220,132,0)');
+  x.beginPath(); x.moveTo(px(0), py(d[0].v));
+  d.forEach((p,i)=> x.lineTo(px(i), py(p.v)));
+  x.lineTo(px(d.length-1), h-pad.b); x.lineTo(px(0), h-pad.b); x.closePath();
+  x.fillStyle = g; x.fill();
+  // line
+  x.beginPath(); d.forEach((p,i)=> i? x.lineTo(px(i),py(p.v)) : x.moveTo(px(i),py(p.v)));
+  x.strokeStyle = '#3ddc84'; x.lineWidth = 2; x.lineJoin = 'round'; x.stroke();
+  // last dot
+  const li = d.length-1;
+  x.beginPath(); x.arc(px(li), py(d[li].v), 3.5, 0, 7); x.fillStyle = '#3ddc84'; x.fill();
+  // x labels
+  x.fillStyle = '#5f7a6d';
+  [0, Math.floor(d.length/2), d.length-1].forEach(i=>{
+    const hh = Math.floor(d[i].hour); const t = (hh<10?'0':'')+hh+':00';
+    const tx = Math.min(w - 26, Math.max(pad.l-4, px(i)-12));
+    x.fillText(t, tx, h-4);
+  });
+}
+
+/* ---------- leaf diagnosis ---------- */
+function toggleQ(){ $('qbox').classList.toggle('hide'); }
+function showShot(inp){
+  const f = inp.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = e => { const p = $('preview'); p.src = e.target.result; p.classList.remove('hide'); };
+  r.readAsDataURL(f);
+  $('qbox').classList.remove('hide');
+}
+const KB = {
+  old_yellow: {n:'ខ្វះ N (អាសូត)', f:'ជីយូរ៉េ (Urea 46-0-0) ឬ NPK 16-16-8 · ៥០–១០០ ក្រាម/ដើម រាល់ ៣–៤ សប្តាហ៍', c:'N ជាជីវជាតិចល័ត — ដើមឈើផ្លាស់ N ពីស្លឹកចាស់ទៅស្លឹកថ្មី ដូច្នេះស្លឹកក្រោមលឿងមុន។'},
+  old_purple:{n:'ខ្វះ P (ផូស្វ័រ)', f:'DAP 18-46-0 ឬ Triple Super Phosphate · ដាក់ជិតឫស', c:'P ជួយប្រព័ន្ធឫស និងការចេញផ្កា/ផ្លែ។ ដីអាស៊ីដខ្លាំង (pH<5.5) ធ្វើឲ្យ P រលាយមិនបាន។'},
+  edge_burn: {n:'ខ្វះ K (ប៉ូតាស្យូម)', f:'MOP 0-0-60 ឬ SOP 0-0-50 · ៥០–៨០ ក្រាម/ដើម', c:'K គ្រប់គ្រងទឹកក្នុងស្លឹក — ខ្វះ K គែមស្លឹកឆេះ។ បើ EC ខ្ពស់ផង សង្ស័យអំបិលដែរ។'},
+  new_yellow: {n:'ខ្វះ Fe (ដែក)', f:'Fe-EDDHA chelate បាញ់ស្លឹក (foliar) ១–២ ក្រាម/លីត្រ', c:'Fe មិនចល័ត — ស្លឹកថ្មីលឿង តែសរសៃបៃតង។ កើតញឹកញាប់ពេលដី pH ខ្ពស់ ឬសើមខ្លាំង។'},
+  interveinal:{n:'ខ្វះ Mg (ម៉ាញេស្យូម)', f:'Epsom salt (MgSO₄) ២០–៣០ ក្រាម/លីត្រ បាញ់ស្លឹក ឬស្រោចឫស', c:'Mg ស្ថិតក្នុងក្លូរ៉ូហ្វីល។ ខ្វះ Mg ស្លឹកលឿងរវាងសរសៃ តែសរសៃនៅបៃតង។'},
+  wilt_dry:  {n:'ខ្វះទឹក', f:'ស្រោចទឹកឲ្យជោគ + mulch គ្របដី · មិនត្រូវដាក់ជីពេលដីស្ងួត', c:'ពេលដីស្ងួត ឫសស្រូបជីមិនបាន — ដាក់ជីឥឡូវនឹងធ្វើឲ្យខូចឫស។'},
+  wilt_wet:  {n:'ស្រោចទឹកច្រើនពេក / រលួយឫស', f:'ឈប់ស្រោច · បន្ថែមរន្ធបង្ហូរ · បាញ់ fungicide បើចាំបាច់', c:'ឫសខ្វះអុកស៊ីហ្សែន → ស្លឹកលឿង ស្លោក។ មិនមែនខ្វះជីទេ។'},
+  spots:     {n:'អំបិលច្រើន ឬផ្សិត', f:'ស្រោចលាងអំបិល (leaching) ២–៣ ដង · កាត់ស្លឹកខូច · fungicide', c:'បើ EC > 3 mS/cm = ជី/អំបិលច្រើន។ បើ EC ធម្មតា = ជំងឺផ្សិត។'}
+};
+function diagnose(){
+  const picked = [...document.querySelectorAll('#qbox input:checked')].map(i=>i.value);
+  const out = $('diagOut'); out.classList.remove('hide');
+  if(!picked.length){
+    out.innerHTML = '<div class="h">មិនទាន់ធីករោគសញ្ញា</div>សូមធីករោគសញ្ញាដែលអ្នកឃើញ ដើម្បីវិភាគ។';
+    return;
+  }
+  const hits = picked.map(k=>KB[k]).filter(Boolean);
+  let html = '<div class="h">🔎 លទ្ធផលវិភាគ (ផ្អែកលើរោគសញ្ញា)</div>';
+  hits.forEach((h,i)=>{
+    html += `<div style="margin-bottom:10px">
+      <span class="pill">${i+1}</span><b>${h.n}</b>
+      <div style="margin-top:4px">💊 <b>ដាក់ជី/ដោះស្រាយ៖</b> ${h.f}</div>
+      <div class="tiny" style="margin-top:3px">${h.c}</div></div>`;
+  });
+  const ecNote = S.ec > 3 ? 'EC បច្ចុប្បន្ន ' + S.ec.toFixed(2) + ' mS/cm — ខ្ពស់ ត្រូវលាងអំបិលមុនដាក់ជីថ្មី។'
+             : S.ec < 0.4 ? 'EC បច្ចុប្បន្ន ' + S.ec.toFixed(2) + ' mS/cm — ទាប បញ្ជាក់ថាដីខ្វះជីសរុប។'
+             : 'EC បច្ចុប្បន្ន ' + S.ec.toFixed(2) + ' mS/cm — ធម្មតា។';
+  html += `<div class="sep"></div><div class="tiny">${ecNote}<br>
+    ⚠️ ការវិភាគតាមរោគសញ្ញាគ្រាន់តែជាការណែនាំ — សម្រាប់ភាពជាក់លាក់ ត្រូវពិនិត្យដី (soil test) ឬផ្ញើរូបស្លឹកទៅអ្នកជំនាញ។</div>`;
+  out.innerHTML = html;
+}
+
+/* ---------- connectivity ---------- */
+function saveIp(){
+  const v = $('ip').value.trim();
+  if(!v){ $('ipMsg').textContent = 'សូមបញ្ចូល IP របស់ ESP32'; return; }
+  S.ip = v; localStorage.setItem('spm_ip', v);
+  S.demo = false; $('demoChk').checked = false;
+  $('chip').textContent = '● ភ្ជាប់ ' + v; $('chip').className = 'chip';
+  $('ipMsg').textContent = 'កំពុងទាញទិន្នន័យពី http://' + v + '/data …';
+  poll();
+}
+function setDemo(on){ S.demo = on; if(on){ $('chip').textContent='● ដំណើរការ (Demo)';
+  $('chip').className='chip'; $('ipMsg').textContent='កំពុងបង្ហាញទិន្នន័យ Demo'; seedHistory(); render(); } }
+async function poll(){
+  if(S.demo){ seedHistory(); render(); return; }
+  try{
+    const r = await fetch('http://' + S.ip + '/data', {cache:'no-store'});
+    const j = await r.json();
+    ['moisture','temp','hum','lux','ec'].forEach(k=>{ if(typeof j[k] === 'number') S[k] = j[k]; });
+    S.hist.push({hour:new Date().getHours()+new Date().getMinutes()/60, v:S.moisture});
+    if(S.hist.length > Math.max(24, 288)) S.hist.shift();
+    $('ipMsg').textContent = 'ទិន្នន័យពិតពី ' + S.ip + ' · ធ្វើបច្ចុប្បន្នភាព ' + new Date().toLocaleTimeString();
+    $('chip').textContent = '● ភ្ជាប់'; $('chip').className = 'chip';
+    render();
+  }catch(e){
+    $('ipMsg').textContent = 'ភ្ជាប់មិនបាន (' + S.ip + ') — កំពុងប្រើ Demo';
+    $('chip').textContent = '● Offline'; $('chip').className = 'chip off';
+    S.demo = true; $('demoChk').checked = true; seedHistory(); render();
+  }
+}
+
+/* ---------- debug hook (សម្រាប់ test / dev) ---------- */
+window.__SPM = { S, analyse, diagnose, seedHistory, render, drawChart, poll };
+
+/* ---------- boot ---------- */
+if(S.ip){ $('ip').value = S.ip; }
+seedHistory(); render();
+setInterval(poll, 5000);
+window.addEventListener('resize', ()=>drawChart());
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
